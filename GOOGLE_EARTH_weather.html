@@ -9,12 +9,125 @@
             height: 400px;
             width: 100%;
         }
+        #contentContainer {
+            display: none;
+            flex-direction: column;
+            align-items: left; 
+        }
+        #newsContainer {
+            display: none;
+            flex-direction: column;
+            max-width: 400px;
+            margin: 20px auto;
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            text-align: left;
+            position: relative;
+            margin-left: 50px;
+        }
+
+        #weatherContainer {
+            width: 400px;
+            height: 250px; 
+            margin: 20px auto;
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            margin-top: 20px;
+            margin-left: 50px;
+            overflow: auto; 
+        }   
+
+        #newsArticles {
+            display: flex;
+            overflow-x: auto;
+            
+        }
+
+        .newsArticle {
+            flex: 0 0 auto;
+            scroll-snap-align: start;
+            width: 250px;
+            text-align: left;
+            padding: 10px;
+            margin-right: 10px;
+            background-color: #f5f5f5;
+            border-radius: 8px;
+            box-shadow: 0 0 5px rgba(0, 0, 0, 0.2);
+            height: 350px; 
+            overflow: auto; 
+            display: flex;
+            flex-direction: column;
+        }
+
+        .newsArticle h3 {
+            margin-bottom: 5px;
+            text-decoration: underline;
+        }
+
+        .newsArticle p {
+            flex: 1;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .newsArticle a {
+            align-self: flex-end;
+        }
+
+        .navigationButton {
+            padding: 10px;
+            background-color: #3498db;
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            position: absolute;
+            z-index: 1; 
+            bottom: 10px;
+        }
+
+        .navigationButton:hover {
+            background-color: #2184b6;
+        }
+
+        .navigationButton.left {
+            left: 10px;
+        }
+
+        .navigationButton.right {
+            right: 10px;
+        }
+
+        
+
+        #weatherInfo {
+            text-align: left;
+        }
+
+        #aboutContainer {
+            display: none;
+        }
     </style>
 </head>
 <body>
     <h1>Click on the Map to Get Weather</h1>
     <div id="map"></div>
-    <div id="weatherInfo"></div>
+    <div id="contentContainer">
+        <div id="newsContainer">
+            <h1>Latest News</h1>
+            <div id="newsArticles"></div>
+            <div id="readmoreContainer"></div>
+            <div class="navigationButton left" onclick="prevArticle()">Previous</div>
+            <div class="navigationButton right" onclick="nextArticle()">Next</div>
+        </div>
+        <div id="weatherContainer">
+            <div id="weatherInfo"></div>
+        </div>
+    </div>
 
     <script>
         function initMap() {
@@ -24,6 +137,7 @@
             });
 
             map.addListener("click", (event) => {
+                document.getElementById("contentContainer").style.display = "flex";
                 getWeather(event.latLng.lat(), event.latLng.lng());
             });
         }
@@ -59,7 +173,13 @@
                 return { countryName: 'Unknown', stateName: 'Unknown' };
             }
         }
+        function toggleContainers(newsVisible, weatherVisible) {
+            const newsContainer = document.getElementById('newsContainer');
+            const weatherContainer = document.getElementById('weatherContainer');
 
+            newsContainer.style.display = newsVisible ? 'block' : 'none';
+            weatherContainer.style.display = weatherVisible ? 'block' : 'none';
+        }
         async function getWeather(latitude, longitude) {
             const apiKey = 'b472969fc1be3f3ebafc0fe48343b532';
             const weatherApiUrl = `https://api.openweathermap.org/data/2.5/weather?lat=${latitude}&lon=${longitude}&appid=${apiKey}&units=metric`;
@@ -81,10 +201,116 @@
                     <p>Country: ${countryName}</p>
                     <p>State/Province: ${stateName}</p>
                 `;
+                toggleContainers(true, true);
             } catch (error) {
                 console.error('Error fetching weather data:', error);
                 alert('Failed to fetch weather data. Please try again.');
             }
+        }
+        document.addEventListener('DOMContentLoaded', function () {
+            getNews();
+        });
+
+        let currentArticleIndex = 0;
+        let articles = []; 
+
+        function prevArticle() {
+            currentArticleIndex = Math.max(currentArticleIndex - 1, 0);
+            showArticle();
+        }
+
+        function nextArticle() {
+            currentArticleIndex = Math.min(currentArticleIndex + 1, articles.length - 1);
+            showArticle();
+        }
+
+        function showArticle() {
+            const container = document.getElementById('newsArticles');
+            const articleWidth = articles[currentArticleIndex].offsetWidth;
+            const newPosition = articles[currentArticleIndex].offsetLeft - 20;
+
+            container.scrollTo({
+                left: newPosition,
+                behavior: 'smooth'
+            });
+        }
+
+        function createNavigationButtons() {
+            const newsContainer = document.getElementById('newsContainer');
+
+            const existingButtons = document.querySelectorAll('.navigationButton');
+            existingButtons.forEach(button => button.remove());
+
+            const prevButton = document.createElement('button');
+            prevButton.textContent = 'Previous';
+            prevButton.className = 'navigationButton left'; 
+            prevButton.onclick = prevArticle;
+
+            const nextButton = document.createElement('button');
+            nextButton.textContent = 'Next';
+            nextButton.className = 'navigationButton right'; 
+            nextButton.onclick = nextArticle;
+
+            newsContainer.appendChild(prevButton);
+            newsContainer.appendChild(nextButton);
+        }
+
+        function getNews() {
+            const newsApiKey = 'pub_393457f990b2e5eba2764e8ab69ea742bd5e8';
+            const newsApiUrl = `https://newsdata.io/api/1/news?apikey=${newsApiKey}&q=weather&country=us&language=en&category=world`;
+            const readMoreContainer = document.getElementById('readmoreContainer');
+
+            fetch(newsApiUrl)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error(`Network response was not ok: ${response.status}`);
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    const newsArticles = document.getElementById('newsArticles');
+
+                    newsArticles.innerHTML = '';
+                    articles = [];
+                    const uniqueTitles = new Set();
+
+                    data.results.forEach(article => {
+                        const articleTitle = article.title;
+
+                        if (!uniqueTitles.has(articleTitle)) {
+                            const articleElement = document.createElement('div');
+                            articleElement.className = 'newsArticle';
+
+                            articleElement.innerHTML = `
+                                <h3>${articleTitle}</h3>
+                                <p>${article.description}</p>
+                            `;
+
+                            const readMoreLink = document.createElement('a');
+                            readMoreLink.href = article.link;
+                            readMoreLink.target = '_blank';
+                            readMoreLink.textContent = 'Read more';
+
+                            articleElement.appendChild(readMoreLink);
+
+                            newsArticles.appendChild(articleElement);
+
+
+                            uniqueTitles.add(articleTitle);
+                            
+                            articles.push(articleElement);
+                        }
+                    });
+
+                    createNavigationButtons();
+                })
+                .catch(error => {
+                    console.error('Error fetching news data:', error);
+                    if (error instanceof TypeError && error.message.includes('Failed to fetch')) {
+                        console.log('Retrying in 5 seconds...');
+                        setTimeout(getNews, 5000);
+                    }
+                });
         }
     </script>
     <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDYZcOyEtR-S0B5VMr1bWILtvdJOmgpiSQ&callback=initMap" async defer></script>
