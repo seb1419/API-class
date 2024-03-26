@@ -180,10 +180,13 @@
             newsContainer.style.display = newsVisible ? 'block' : 'none';
             weatherContainer.style.display = weatherVisible ? 'block' : 'none';
         }
+        function clearArticles() {
+            const newsArticles = document.getElementById('newsArticles');
+            newsArticles.innerHTML = '';
+        }
         async function getWeather(latitude, longitude) {
             const apiKey = 'b472969fc1be3f3ebafc0fe48343b532';
             const weatherApiUrl = `https://api.openweathermap.org/data/2.5/weather?lat=${latitude}&lon=${longitude}&appid=${apiKey}&units=metric`;
-
             try {
                 const response = await fetch(weatherApiUrl);
                 const data = await response.json();
@@ -192,7 +195,9 @@
                 const temperatureFahrenheit = (temperatureCelsius * 9/5) + 32;
 
                 const { countryName, stateName } = await getAddressDetails(latitude, longitude);
-
+                window.countryName = countryName;
+                window.stateName = stateName;
+                
                 const weatherInfo = document.getElementById('weatherInfo');
                 weatherInfo.innerHTML = `
                     <h2>Weather at Clicked Location</h2>
@@ -202,14 +207,13 @@
                     <p>State/Province: ${stateName}</p>
                 `;
                 toggleContainers(true, true);
+                clearArticles();
+                getNews();
             } catch (error) {
                 console.error('Error fetching weather data:', error);
                 alert('Failed to fetch weather data. Please try again.');
             }
         }
-        document.addEventListener('DOMContentLoaded', function () {
-            getNews();
-        });
 
         let currentArticleIndex = 0;
         let articles = []; 
@@ -227,10 +231,11 @@
         function showArticle() {
             const container = document.getElementById('newsArticles');
             const articleWidth = articles[currentArticleIndex].offsetWidth;
-            const newPosition = articles[currentArticleIndex].offsetLeft - 20;
+            const containerWidth = container.offsetWidth;
+            const scrollLeft = articles[currentArticleIndex].offsetLeft;
 
             container.scrollTo({
-                left: newPosition,
+                left: scrollLeft - (containerWidth - articleWidth) / 2,
                 behavior: 'smooth'
             });
         }
@@ -256,9 +261,17 @@
         }
 
         function getNews() {
-            const newsApiKey = 'pub_393457f990b2e5eba2764e8ab69ea742bd5e8';
-            const newsApiUrl = `https://newsdata.io/api/1/news?apikey=${newsApiKey}&q=weather&country=us&language=en&category=world`;
-            const readMoreContainer = document.getElementById('readmoreContainer');
+            currentArticleIndex = 0;
+            const newsArticles = document.getElementById('newsArticles');
+            newsArticles.innerHTML = '';
+            articles = [];
+
+            const newsApiKey = 'fb41d972-3e8b-433b-a750-97ab9a9c6ecd';
+            const countryName = window.countryName;
+            const stateName = window.stateName;
+            const searchTerm = `weather ${countryName} ${stateName}`.trim();
+            const encodedSearchTerm = encodeURIComponent(searchTerm);
+            const newsApiUrl = `https://api.webz.io/newsApiLite?token=${newsApiKey}&q=${encodedSearchTerm}`;
 
             fetch(newsApiUrl)
                 .then(response => {
@@ -268,26 +281,29 @@
                     return response.json();
                 })
                 .then(data => {
+                    console.log('Requests left:', data.requestsLeft);
                     const newsArticles = document.getElementById('newsArticles');
 
                     newsArticles.innerHTML = '';
-                    articles = [];
                     const uniqueTitles = new Set();
 
-                    data.results.forEach(article => {
-                        const articleTitle = article.title;
+                    data.posts.forEach(article => {
+                        console.log(article);
+                        const articleTitle = article.thread.title;
+                        const articleUrl = article.url;
+                        const articleKey = articleTitle + articleUrl;
 
-                        if (!uniqueTitles.has(articleTitle)) {
+                        if (articleTitle.trim() !== '' && !uniqueTitles.has(articleKey)) {
                             const articleElement = document.createElement('div');
                             articleElement.className = 'newsArticle';
 
                             articleElement.innerHTML = `
                                 <h3>${articleTitle}</h3>
-                                <p>${article.description}</p>
+                                <p>${article.thread.title}</p> 
                             `;
 
                             const readMoreLink = document.createElement('a');
-                            readMoreLink.href = article.link;
+                            readMoreLink.href = articleUrl;
                             readMoreLink.target = '_blank';
                             readMoreLink.textContent = 'Read more';
 
@@ -295,14 +311,15 @@
 
                             newsArticles.appendChild(articleElement);
 
+                            uniqueTitles.add(articleKey);
 
-                            uniqueTitles.add(articleTitle);
-                            
                             articles.push(articleElement);
                         }
                     });
 
-                    createNavigationButtons();
+                    if (data.posts.length > 1) {
+                        createNavigationButtons();
+                    }
                 })
                 .catch(error => {
                     console.error('Error fetching news data:', error);
@@ -312,6 +329,7 @@
                     }
                 });
         }
+
     </script>
     <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDYZcOyEtR-S0B5VMr1bWILtvdJOmgpiSQ&callback=initMap" async defer></script>
 </body>
