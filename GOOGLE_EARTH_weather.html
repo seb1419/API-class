@@ -272,6 +272,7 @@
             const searchTerm = `weather ${countryName} ${stateName}`.trim();
             const encodedSearchTerm = encodeURIComponent(searchTerm);
             const newsApiUrl = `https://api.webz.io/newsApiLite?token=${newsApiKey}&q=${encodedSearchTerm}`;
+            console.log('Fetching news from:', newsApiUrl);
 
             fetch(newsApiUrl)
                 .then(response => {
