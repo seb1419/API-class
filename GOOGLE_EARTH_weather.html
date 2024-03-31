@@ -1,337 +1,387 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Weather on Click</title>
+  <head>
+    <meta charset="UTF-8" />
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+      integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH"
+      crossorigin="anonymous"
+    />
+    <link
+      href="https://fonts.googleapis.com/css?family=Bubblegum Sans"
+      rel="stylesheet"
+    />
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>WeatherQuest</title>
     <style>
-        #map {
-            height: 400px;
-            width: 100%;
-        }
-        #contentContainer {
-            display: none;
-            flex-direction: column;
-            align-items: left; 
-        }
-        #newsContainer {
-            display: none;
-            flex-direction: column;
-            max-width: 400px;
-            margin: 20px auto;
-            padding: 20px;
-            background-color: #fff;
-            border-radius: 8px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-            text-align: left;
-            position: relative;
-            margin-left: 50px;
-        }
+      #map {
+        height: 400px;
+        width: 100%;
+      }
+      #contentContainer {
+        display: none;
+        flex-direction: column;
+        align-items: left;
+      }
+      #newsContainer {
+        display: none;
+        flex-direction: column;
+        max-width: 400px;
+        margin: 20px auto;
+        padding: 20px;
+        background-color: #a0c1b9;
+        border-radius: 8px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        text-align: left;
+        position: relative;
+        margin-left: 50px;
+      }
 
-        #weatherContainer {
-            width: 400px;
-            height: 250px; 
-            margin: 20px auto;
-            padding: 20px;
-            background-color: #fff;
-            border-radius: 8px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-            margin-top: 20px;
-            margin-left: 50px;
-            overflow: auto; 
-        }   
+      #weatherContainer {
+        width: 400px;
+        height: 250px;
+        margin: 20px auto;
+        padding: 20px;
+        background-color: #a0c1b9;
+        border-radius: 8px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        margin-top: 20px;
+        margin-left: 50px;
+        overflow: auto;
+      }
 
-        #newsArticles {
-            display: flex;
-            overflow-x: auto;
-            
-        }
+      #newsArticles {
+        display: flex;
+        overflow-x: auto;
+      }
 
-        .newsArticle {
-            flex: 0 0 auto;
-            scroll-snap-align: start;
-            width: 250px;
-            text-align: left;
-            padding: 10px;
-            margin-right: 10px;
-            background-color: #f5f5f5;
-            border-radius: 8px;
-            box-shadow: 0 0 5px rgba(0, 0, 0, 0.2);
-            height: 350px; 
-            overflow: auto; 
-            display: flex;
-            flex-direction: column;
-        }
+      .newsArticle {
+        flex: 0 0 auto;
+        scroll-snap-align: start;
+        width: 250px;
+        text-align: left;
+        padding: 10px;
+        margin-right: 10px;
+        background-color: white;
+        border-radius: 8px;
+        box-shadow: 0 0 5px rgba(0, 0, 0, 0.2);
+        height: 350px;
+        overflow: auto;
+        display: flex;
+        flex-direction: column;
+      }
 
-        .newsArticle h3 {
-            margin-bottom: 5px;
-            text-decoration: underline;
-        }
+      .newsArticle h3 {
+        margin-bottom: 5px;
+        text-decoration: underline;
+      }
 
-        .newsArticle p {
-            flex: 1;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
+      .newsArticle p {
+        flex: 1;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
 
-        .newsArticle a {
-            align-self: flex-end;
-        }
+      .newsArticle a {
+        align-self: flex-end;
+      }
 
-        .navigationButton {
-            padding: 10px;
-            background-color: #3498db;
-            color: #fff;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            position: absolute;
-            z-index: 1; 
-            bottom: 10px;
-        }
+      .navigationButton {
+        padding: 10px;
+        background-color: #133c55;
+        color: #fff;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        position: absolute;
+        z-index: 1;
+        bottom: 10px;
+      }
 
-        .navigationButton:hover {
-            background-color: #2184b6;
-        }
+      .navigationButton:hover {
+        background-color: #2184b6;
+      }
 
-        .navigationButton.left {
-            left: 10px;
-        }
+      .navigationButton.left {
+        left: 10px;
+      }
 
-        .navigationButton.right {
-            right: 10px;
-        }
+      .navigationButton.right {
+        right: 10px;
+      }
 
-        
+      #weatherInfo {
+        text-align: left;
+      }
 
-        #weatherInfo {
-            text-align: left;
-        }
+      #aboutContainer {
+        display: none;
+      }
 
-        #aboutContainer {
-            display: none;
-        }
+      #header {
+        text-align: center;
+        color: white;
+        background: #70a0af;
+        font-family: "Bubblegum Sans";
+        font-size: 70px;
+        padding: 10px;
+        border-radius: 60px;
+      }
+
+      body {
+        background: #f4e8c1;
+        font-family: "Bubblegum Sans";
+      }
+
+      #intro-text {
+        font-size: 40px;
+        text-align: center;
+      }
     </style>
-</head>
-<body>
-    <h1>Click on the Map to Get Weather</h1>
+  </head>
+  <div id="header">WeatherQuest</div>
+  <body>
     <div id="map"></div>
     <div id="contentContainer">
-        <div id="newsContainer">
-            <h1>Latest News</h1>
-            <div id="newsArticles"></div>
-            <div id="readmoreContainer"></div>
-            <div class="navigationButton left" onclick="prevArticle()">Previous</div>
-            <div class="navigationButton right" onclick="nextArticle()">Next</div>
+      <div id="newsContainer">
+        <h1>Latest News</h1>
+        <div id="newsArticles"></div>
+        <div id="readmoreContainer"></div>
+        <div class="navigationButton left" onclick="prevArticle()">
+          Previous
         </div>
-        <div id="weatherContainer">
-            <div id="weatherInfo"></div>
-        </div>
+        <div class="navigationButton right" onclick="nextArticle()">Next</div>
+      </div>
+      <div id="weatherContainer">
+        <div id="weatherInfo"></div>
+      </div>
     </div>
 
     <script>
-        function initMap() {
-            const map = new google.maps.Map(document.getElementById("map"), {
-                center: { lat: 0, lng: 0 },
-                zoom: 2,
-            });
+      function initMap() {
+        const map = new google.maps.Map(document.getElementById("map"), {
+          center: { lat: 0, lng: 0 },
+          zoom: 2,
+        });
 
-            map.addListener("click", (event) => {
-                document.getElementById("contentContainer").style.display = "flex";
-                getWeather(event.latLng.lat(), event.latLng.lng());
-            });
-        }
+        map.addListener("click", (event) => {
+          document.getElementById("contentContainer").style.display = "flex";
+          getWeather(event.latLng.lat(), event.latLng.lng());
+        });
+      }
 
-        async function getAddressDetails(latitude, longitude) {
-            const apiKey = 'AIzaSyDYZcOyEtR-S0B5VMr1bWILtvdJOmgpiSQ';
-            const geocodingApiUrl = `https://maps.googleapis.com/maps/api/geocode/json?latlng=${latitude},${longitude}&key=${apiKey}`;
+      async function getAddressDetails(latitude, longitude) {
+        const apiKey = "AIzaSyDYZcOyEtR-S0B5VMr1bWILtvdJOmgpiSQ";
+        const geocodingApiUrl = `https://maps.googleapis.com/maps/api/geocode/json?latlng=${latitude},${longitude}&key=${apiKey}`;
 
-            try {
-                const response = await fetch(geocodingApiUrl);
-                const data = await response.json();
+        try {
+          const response = await fetch(geocodingApiUrl);
+          const data = await response.json();
 
-                if (data.status === 'OK' && data.results.length > 0) {
-                    const addressComponents = data.results[0].address_components;
-                    let countryName = 'Unknown';
-                    let stateName = 'Unknown';
+          if (data.status === "OK" && data.results.length > 0) {
+            const addressComponents = data.results[0].address_components;
+            let countryName = "Unknown";
+            let stateName = "Unknown";
 
-                    for (let component of addressComponents) {
-                        if (component.types.includes('country')) {
-                            countryName = component.long_name;
-                        }
-                        if (component.types.includes('administrative_area_level_1')) {
-                            stateName = component.long_name;
-                        }
-                    }
-
-                    return { countryName, stateName };
-                } else {
-                    return { countryName: 'Unknown', stateName: 'Unknown' };
-                }
-            } catch (error) {
-                console.error('Error fetching address details:', error);
-                return { countryName: 'Unknown', stateName: 'Unknown' };
+            for (let component of addressComponents) {
+              if (component.types.includes("country")) {
+                countryName = component.long_name;
+              }
+              if (component.types.includes("administrative_area_level_1")) {
+                stateName = component.long_name;
+              }
             }
-        }
-        function toggleContainers(newsVisible, weatherVisible) {
-            const newsContainer = document.getElementById('newsContainer');
-            const weatherContainer = document.getElementById('weatherContainer');
 
-            newsContainer.style.display = newsVisible ? 'block' : 'none';
-            weatherContainer.style.display = weatherVisible ? 'block' : 'none';
+            return { countryName, stateName };
+          } else {
+            return { countryName: "Unknown", stateName: "Unknown" };
+          }
+        } catch (error) {
+          console.error("Error fetching address details:", error);
+          return { countryName: "Unknown", stateName: "Unknown" };
         }
-        function clearArticles() {
-            const newsArticles = document.getElementById('newsArticles');
-            newsArticles.innerHTML = '';
-        }
-        async function getWeather(latitude, longitude) {
-            const apiKey = 'b472969fc1be3f3ebafc0fe48343b532';
-            const weatherApiUrl = `https://api.openweathermap.org/data/2.5/weather?lat=${latitude}&lon=${longitude}&appid=${apiKey}&units=metric`;
-            try {
-                const response = await fetch(weatherApiUrl);
-                const data = await response.json();
+      }
+      function toggleContainers(newsVisible, weatherVisible) {
+        const newsContainer = document.getElementById("newsContainer");
+        const weatherContainer = document.getElementById("weatherContainer");
 
-                const temperatureCelsius = data.main.temp;
-                const temperatureFahrenheit = (temperatureCelsius * 9/5) + 32;
+        newsContainer.style.display = newsVisible ? "block" : "none";
+        weatherContainer.style.display = weatherVisible ? "block" : "none";
+      }
+      function clearArticles() {
+        const newsArticles = document.getElementById("newsArticles");
+        newsArticles.innerHTML = "";
+      }
+      async function getWeather(latitude, longitude) {
+        const apiKey = "b472969fc1be3f3ebafc0fe48343b532";
+        const weatherApiUrl = `https://api.openweathermap.org/data/2.5/weather?lat=${latitude}&lon=${longitude}&appid=${apiKey}&units=metric`;
+        try {
+          const response = await fetch(weatherApiUrl);
+          const data = await response.json();
 
-                const { countryName, stateName } = await getAddressDetails(latitude, longitude);
-                window.countryName = countryName;
-                window.stateName = stateName;
-                
-                const weatherInfo = document.getElementById('weatherInfo');
-                weatherInfo.innerHTML = `
+          const temperatureCelsius = data.main.temp;
+          const temperatureFahrenheit = (temperatureCelsius * 9) / 5 + 32;
+
+          const { countryName, stateName } = await getAddressDetails(
+            latitude,
+            longitude
+          );
+          window.countryName = countryName;
+          window.stateName = stateName;
+
+          const weatherInfo = document.getElementById("weatherInfo");
+          weatherInfo.innerHTML = `
                     <h2>Weather at Clicked Location</h2>
                     <p>Temperature: ${temperatureFahrenheit.toFixed(2)}°F</p>
                     <p>Description: ${data.weather[0].description}</p>
                     <p>Country: ${countryName}</p>
                     <p>State/Province: ${stateName}</p>
                 `;
-                toggleContainers(true, true);
-                clearArticles();
-                getNews();
-            } catch (error) {
-                console.error('Error fetching weather data:', error);
-                alert('Failed to fetch weather data. Please try again.');
+          toggleContainers(true, true);
+          clearArticles();
+          getNews();
+        } catch (error) {
+          console.error("Error fetching weather data:", error);
+          alert("Failed to fetch weather data. Please try again.");
+        }
+      }
+
+      let currentArticleIndex = 0;
+      let articles = [];
+
+      function prevArticle() {
+        currentArticleIndex = Math.max(currentArticleIndex - 1, 0);
+        showArticle();
+      }
+
+      function nextArticle() {
+        currentArticleIndex = Math.min(
+          currentArticleIndex + 1,
+          articles.length - 1
+        );
+        showArticle();
+      }
+
+      function showArticle() {
+        const container = document.getElementById("newsArticles");
+        const articleWidth = articles[currentArticleIndex].offsetWidth;
+        const containerWidth = container.offsetWidth;
+        const scrollLeft = articles[currentArticleIndex].offsetLeft;
+
+        container.scrollTo({
+          left: scrollLeft - (containerWidth - articleWidth) / 2,
+          behavior: "smooth",
+        });
+      }
+
+      function createNavigationButtons() {
+        const newsContainer = document.getElementById("newsContainer");
+
+        const existingButtons = document.querySelectorAll(".navigationButton");
+        existingButtons.forEach((button) => button.remove());
+
+        const prevButton = document.createElement("button");
+        prevButton.textContent = "Previous";
+        prevButton.className = "navigationButton left";
+        prevButton.onclick = prevArticle;
+
+        const nextButton = document.createElement("button");
+        nextButton.textContent = "Next";
+        nextButton.className = "navigationButton right";
+        nextButton.onclick = nextArticle;
+
+        newsContainer.appendChild(prevButton);
+        newsContainer.appendChild(nextButton);
+      }
+
+      function getNews() {
+        currentArticleIndex = 0;
+        const newsArticles = document.getElementById("newsArticles");
+        newsArticles.innerHTML = "";
+        articles = [];
+
+        const newsApiKey = "fb41d972-3e8b-433b-a750-97ab9a9c6ecd";
+        const countryName = window.countryName;
+        const stateName = window.stateName;
+        const searchTerm = `weather ${countryName} ${stateName}`.trim();
+        const encodedSearchTerm = encodeURIComponent(searchTerm);
+        const newsApiUrl = `https://api.webz.io/newsApiLite?token=${newsApiKey}&q=${encodedSearchTerm}`;
+        console.log("Fetching news from:", newsApiUrl);
+
+        fetch(newsApiUrl)
+          .then((response) => {
+            if (!response.ok) {
+              throw new Error(
+                `Network response was not ok: ${response.status}`
+              );
             }
-        }
+            return response.json();
+          })
+          .then((data) => {
+            console.log("Requests left:", data.requestsLeft);
+            const newsArticles = document.getElementById("newsArticles");
 
-        let currentArticleIndex = 0;
-        let articles = []; 
+            newsArticles.innerHTML = "";
+            const uniqueTitles = new Set();
 
-        function prevArticle() {
-            currentArticleIndex = Math.max(currentArticleIndex - 1, 0);
-            showArticle();
-        }
+            data.posts.forEach((article) => {
+              console.log(article);
+              const articleTitle = article.thread.title;
+              const articleUrl = article.url;
+              const articleKey = articleTitle + articleUrl;
 
-        function nextArticle() {
-            currentArticleIndex = Math.min(currentArticleIndex + 1, articles.length - 1);
-            showArticle();
-        }
+              if (articleTitle.trim() !== "" && !uniqueTitles.has(articleKey)) {
+                const articleElement = document.createElement("div");
+                articleElement.className = "newsArticle";
 
-        function showArticle() {
-            const container = document.getElementById('newsArticles');
-            const articleWidth = articles[currentArticleIndex].offsetWidth;
-            const containerWidth = container.offsetWidth;
-            const scrollLeft = articles[currentArticleIndex].offsetLeft;
-
-            container.scrollTo({
-                left: scrollLeft - (containerWidth - articleWidth) / 2,
-                behavior: 'smooth'
-            });
-        }
-
-        function createNavigationButtons() {
-            const newsContainer = document.getElementById('newsContainer');
-
-            const existingButtons = document.querySelectorAll('.navigationButton');
-            existingButtons.forEach(button => button.remove());
-
-            const prevButton = document.createElement('button');
-            prevButton.textContent = 'Previous';
-            prevButton.className = 'navigationButton left'; 
-            prevButton.onclick = prevArticle;
-
-            const nextButton = document.createElement('button');
-            nextButton.textContent = 'Next';
-            nextButton.className = 'navigationButton right'; 
-            nextButton.onclick = nextArticle;
-
-            newsContainer.appendChild(prevButton);
-            newsContainer.appendChild(nextButton);
-        }
-
-        function getNews() {
-            currentArticleIndex = 0;
-            const newsArticles = document.getElementById('newsArticles');
-            newsArticles.innerHTML = '';
-            articles = [];
-
-            const newsApiKey = 'fb41d972-3e8b-433b-a750-97ab9a9c6ecd';
-            const countryName = window.countryName;
-            const stateName = window.stateName;
-            const searchTerm = `weather ${countryName} ${stateName}`.trim();
-            const encodedSearchTerm = encodeURIComponent(searchTerm);
-            const newsApiUrl = `https://api.webz.io/newsApiLite?token=${newsApiKey}&q=${encodedSearchTerm}`;
-            console.log('Fetching news from:', newsApiUrl);
-
-            fetch(newsApiUrl)
-                .then(response => {
-                    if (!response.ok) {
-                        throw new Error(`Network response was not ok: ${response.status}`);
-                    }
-                    return response.json();
-                })
-                .then(data => {
-                    console.log('Requests left:', data.requestsLeft);
-                    const newsArticles = document.getElementById('newsArticles');
-
-                    newsArticles.innerHTML = '';
-                    const uniqueTitles = new Set();
-
-                    data.posts.forEach(article => {
-                        console.log(article);
-                        const articleTitle = article.thread.title;
-                        const articleUrl = article.url;
-                        const articleKey = articleTitle + articleUrl;
-
-                        if (articleTitle.trim() !== '' && !uniqueTitles.has(articleKey)) {
-                            const articleElement = document.createElement('div');
-                            articleElement.className = 'newsArticle';
-
-                            articleElement.innerHTML = `
+                articleElement.innerHTML = `
                                 <h3>${articleTitle}</h3>
                                 <p>${article.thread.title}</p> 
                             `;
 
-                            const readMoreLink = document.createElement('a');
-                            readMoreLink.href = articleUrl;
-                            readMoreLink.target = '_blank';
-                            readMoreLink.textContent = 'Read more';
+                const readMoreLink = document.createElement("a");
+                readMoreLink.href = articleUrl;
+                readMoreLink.target = "_blank";
+                readMoreLink.textContent = "Read more";
 
-                            articleElement.appendChild(readMoreLink);
+                articleElement.appendChild(readMoreLink);
 
-                            newsArticles.appendChild(articleElement);
+                newsArticles.appendChild(articleElement);
 
-                            uniqueTitles.add(articleKey);
+                uniqueTitles.add(articleKey);
 
-                            articles.push(articleElement);
-                        }
-                    });
+                articles.push(articleElement);
+              }
+            });
 
-                    if (data.posts.length > 1) {
-                        createNavigationButtons();
-                    }
-                })
-                .catch(error => {
-                    console.error('Error fetching news data:', error);
-                    if (error instanceof TypeError && error.message.includes('Failed to fetch')) {
-                        console.log('Retrying in 5 seconds...');
-                        setTimeout(getNews, 5000);
-                    }
-                });
-        }
-
+            if (data.posts.length > 1) {
+              createNavigationButtons();
+            }
+          })
+          .catch((error) => {
+            console.error("Error fetching news data:", error);
+            if (
+              error instanceof TypeError &&
+              error.message.includes("Failed to fetch")
+            ) {
+              console.log("Retrying in 5 seconds...");
+              setTimeout(getNews, 5000);
+            }
+          });
+      }
     </script>
-    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDYZcOyEtR-S0B5VMr1bWILtvdJOmgpiSQ&callback=initMap" async defer></script>
-</body>
+    <script
+      src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDYZcOyEtR-S0B5VMr1bWILtvdJOmgpiSQ&callback=initMap"
+      async
+      defer
+    ></script>
+    <div id="intro-text">
+      <p>
+        Welcome to WeatherQuest! Please select a location on the map to discover
+        current weather conditions and local news!
+      </p>
+    </div>
+  </body>
 </html>
